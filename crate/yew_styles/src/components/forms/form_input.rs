@@ -112,6 +112,9 @@ pub struct Props {
     /// Signal to emit the event keypress
     #[prop_or(Callback::noop())]
     pub onkeydown_signal: Callback<KeyboardEvent>,
+    /// Signal to emit the event keypress
+    #[prop_or(Callback::noop())]
+    pub onchange_signal: Callback<ChangeData>,
     /// Content to be appear in the form control when the form control is empty
     #[prop_or_default]
     pub placeholder: String,
@@ -188,6 +191,7 @@ pub enum Msg {
     Input(InputData),
     Blur(FocusEvent),
     KeyPressed(KeyboardEvent),
+    Change(ChangeData)
 }
 
 impl Component for FormInput {
@@ -208,7 +212,11 @@ impl Component for FormInput {
             }
             Msg::KeyPressed(keyboard_event) => {
                 self.props.onkeydown_signal.emit(keyboard_event);
+            },
+            Msg::Change(change_data) => {
+                self.props.onchange_signal.emit(change_data)
             }
+
         };
 
         true
@@ -239,6 +247,7 @@ impl Component for FormInput {
                     ref=self.props.code_ref.clone()
                     type=get_type(self.props.input_type.clone())
                     oninput=self.link.callback(Msg::Input)
+                    onchange=self.link.callback(Msg::Change)
                     checked=self.props.checked
                     onblur=self.link.callback(Msg::Blur)
                     onkeydown=self.link.callback(Msg::KeyPressed)
@@ -301,6 +310,7 @@ fn should_create_form_input() {
         oninput_signal: Callback::noop(),
         onblur_signal: Callback::noop(),
         onkeydown_signal: Callback::noop(),
+        onchange_signal: Callback::noop(),
         checked: false,
         error_message: "invalid input".to_string(),
         error_state: false,
